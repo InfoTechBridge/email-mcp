@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EmailMcp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dec68a9593ceb37c3303744bdb0caa0035005655")]
 [assembly: System.Reflection.AssemblyProductAttribute("EmailMcp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EmailMcp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

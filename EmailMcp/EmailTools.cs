@@ -19,12 +19,20 @@ public static class EmailTools
         [Description("Email subject")] string subject,
         [Description("Email body (plain text or HTML)")] string body,
         [Description("Set to true if body is HTML")] bool isHtml = false,
+        [Description("Comma-separated CC email addresses")] string? cc = null,
+        [Description("Comma-separated BCC email addresses")] string? bcc = null,
         [Description("Comma-separated list of file paths to attach")] string? attachments = null)
     {
         var cfg = options.Value;
         var message = new MimeMessage();
         message.From.Add(MailboxAddress.Parse(from));
         message.To.Add(MailboxAddress.Parse(to));
+        if (!string.IsNullOrEmpty(cc))
+            foreach (var addr in cc.Split(',', StringSplitOptions.TrimEntries))
+                message.Cc.Add(MailboxAddress.Parse(addr));
+        if (!string.IsNullOrEmpty(bcc))
+            foreach (var addr in bcc.Split(',', StringSplitOptions.TrimEntries))
+                message.Bcc.Add(MailboxAddress.Parse(addr));
         message.Subject = subject;
 
         var textPart = new TextPart(isHtml ? "html" : "plain") { Text = body };
@@ -218,6 +226,8 @@ public static class EmailTools
         [Description("Index of the email to reply to (0-based from most recent)")] int emailIndex,
         [Description("Reply body (plain text or HTML)")] string body,
         [Description("Set to true if body is HTML")] bool isHtml = false,
+        [Description("Comma-separated CC email addresses")] string? cc = null,
+        [Description("Comma-separated BCC email addresses")] string? bcc = null,
         [Description("Folder to read from (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
     {
         var cfg = options.Value;
@@ -240,6 +250,14 @@ public static class EmailTools
         var reply = new MimeMessage();
         reply.From.Add(MailboxAddress.Parse(from));
         reply.To.AddRange(original.ReplyTo.Count > 0 ? original.ReplyTo : original.From);
+        reply.Cc.AddRange(original.Cc);
+        reply.Bcc.AddRange(original.Bcc);
+        if (!string.IsNullOrEmpty(cc))
+            foreach (var addr in cc.Split(',', StringSplitOptions.TrimEntries))
+                reply.Cc.Add(MailboxAddress.Parse(addr));
+        if (!string.IsNullOrEmpty(bcc))
+            foreach (var addr in bcc.Split(',', StringSplitOptions.TrimEntries))
+                reply.Bcc.Add(MailboxAddress.Parse(addr));
         reply.Subject = original.Subject?.StartsWith("Re:", StringComparison.OrdinalIgnoreCase) == true
             ? original.Subject
             : $"Re: {original.Subject}";
@@ -266,6 +284,8 @@ public static class EmailTools
         [Description("Recipient email address to forward to")] string to,
         [Description("Index of the email to forward (0-based from most recent)")] int emailIndex,
         [Description("Optional message to prepend")] string? message = null,
+        [Description("Comma-separated CC email addresses")] string? cc = null,
+        [Description("Comma-separated BCC email addresses")] string? bcc = null,
         [Description("Folder to read from (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
     {
         var cfg = options.Value;
@@ -288,6 +308,12 @@ public static class EmailTools
         var forward = new MimeMessage();
         forward.From.Add(MailboxAddress.Parse(from));
         forward.To.Add(MailboxAddress.Parse(to));
+        if (!string.IsNullOrEmpty(cc))
+            foreach (var addr in cc.Split(',', StringSplitOptions.TrimEntries))
+                forward.Cc.Add(MailboxAddress.Parse(addr));
+        if (!string.IsNullOrEmpty(bcc))
+            foreach (var addr in bcc.Split(',', StringSplitOptions.TrimEntries))
+                forward.Bcc.Add(MailboxAddress.Parse(addr));
         forward.Subject = $"Fwd: {original.Subject}";
 
         var forwardBody = $"{message ?? ""}\n\n---------- Forwarded message ----------\nFrom: {original.From}\nDate: {original.Date}\nSubject: {original.Subject}\nTo: {original.To}\n\n{original.TextBody}";
@@ -551,12 +577,20 @@ public static class EmailTools
         [Description("Email subject")] string subject,
         [Description("Email body (plain text or HTML)")] string body,
         [Description("Set to true if body is HTML")] bool isHtml = false,
+        [Description("Comma-separated CC email addresses")] string? cc = null,
+        [Description("Comma-separated BCC email addresses")] string? bcc = null,
         [Description("Comma-separated list of file paths to attach")] string? attachments = null)
     {
         var cfg = options.Value;
         var message = new MimeMessage();
         message.From.Add(MailboxAddress.Parse(from));
         message.To.Add(MailboxAddress.Parse(to));
+        if (!string.IsNullOrEmpty(cc))
+            foreach (var addr in cc.Split(',', StringSplitOptions.TrimEntries))
+                message.Cc.Add(MailboxAddress.Parse(addr));
+        if (!string.IsNullOrEmpty(bcc))
+            foreach (var addr in bcc.Split(',', StringSplitOptions.TrimEntries))
+                message.Bcc.Add(MailboxAddress.Parse(addr));
         message.Subject = subject;
 
         var textPart = new TextPart(isHtml ? "html" : "plain") { Text = body };
