@@ -10,6 +10,7 @@ services:
 
   email-mcp:
     build: .
+    image: email-mcp
     container_name: email-mcp
     ports:
       - "5000:8080"

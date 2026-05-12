@@ -124,6 +124,19 @@ Add to your MCP client config (e.g. `mcp.json`):
 }
 ```
 
+VS Code:
+
+```json
+{
+  "servers": {
+		"email-mcp": {
+			"url": "http://127.0.0.1:5000/",
+			"type": "http"
+		}
+	}
+}
+```
+
 ## License
 
 MIT
