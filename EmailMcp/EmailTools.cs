@@ -59,7 +59,7 @@ public static class EmailTools
         }
 
         using var client = new SmtpClient();
-        await client.ConnectAsync(cfg.SmtpHost, cfg.SmtpPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.SmtpHost, cfg.SmtpPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
         await client.SendAsync(message);
         await client.DisconnectAsync(true);
@@ -76,7 +76,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -116,7 +116,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -162,7 +162,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var inbox = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -235,7 +235,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var imapClient = new ImapClient();
-        await imapClient.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await imapClient.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await imapClient.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -272,7 +272,7 @@ public static class EmailTools
         reply.Body = new TextPart(isHtml ? "html" : "plain") { Text = body };
 
         using var smtpClient = new SmtpClient();
-        await smtpClient.ConnectAsync(cfg.SmtpHost, cfg.SmtpPort, cfg.UseSsl);
+        await smtpClient.ConnectAsync(cfg.SmtpHost, cfg.SmtpPort, cfg.SecureSocketOption);
         await smtpClient.AuthenticateAsync(cfg.Username, cfg.Password);
         await smtpClient.SendAsync(reply);
         await smtpClient.DisconnectAsync(true);
@@ -293,7 +293,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var imapClient = new ImapClient();
-        await imapClient.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await imapClient.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await imapClient.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -323,7 +323,7 @@ public static class EmailTools
         forward.Body = new TextPart("plain") { Text = forwardBody };
 
         using var smtpClient = new SmtpClient();
-        await smtpClient.ConnectAsync(cfg.SmtpHost, cfg.SmtpPort, cfg.UseSsl);
+        await smtpClient.ConnectAsync(cfg.SmtpHost, cfg.SmtpPort, cfg.SecureSocketOption);
         await smtpClient.AuthenticateAsync(cfg.Username, cfg.Password);
         await smtpClient.SendAsync(forward);
         await smtpClient.DisconnectAsync(true);
@@ -340,7 +340,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -385,7 +385,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var toplevel = client.GetFolder(client.PersonalNamespaces[0]);
@@ -402,7 +402,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = await client.GetFolderAsync(folderName);
@@ -420,7 +420,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = await client.GetFolderAsync(oldName);
@@ -440,7 +440,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -464,7 +464,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var personal = client.GetFolder(client.PersonalNamespaces[0]);
@@ -483,7 +483,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -507,7 +507,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -535,7 +535,7 @@ public static class EmailTools
     {
         var cfg = options.Value;
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
         var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
@@ -620,11 +620,12 @@ public static class EmailTools
         }
 
         using var client = new ImapClient();
-        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.SecureSocketOption);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
-        var drafts = client.GetFolder(SpecialFolder.Drafts)
-            ?? await client.GetFolderAsync("Drafts");
+        IMailFolder drafts;
+        try { drafts = client.GetFolder(SpecialFolder.Drafts) ?? await client.GetFolderAsync("Drafts"); }
+        catch { drafts = await client.GetFolderAsync("Drafts"); }
         await drafts.OpenAsync(FolderAccess.ReadWrite);
         await drafts.AppendAsync(message, MessageFlags.Draft);
         await client.DisconnectAsync(true);

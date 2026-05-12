@@ -9,7 +9,7 @@ if (useHttp)
 {
     var builder = WebApplication.CreateBuilder(args);
     builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
-    builder.Services.AddMcpServer().WithToolsFromAssembly();
+    builder.Services.AddMcpServer().WithHttpTransport().WithToolsFromAssembly();
     builder.Logging.AddConsole(o => o.LogToStandardErrorThreshold = LogLevel.Trace);
 
     var app = builder.Build();

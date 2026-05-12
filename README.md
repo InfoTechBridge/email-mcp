@@ -4,9 +4,24 @@ A Model Context Protocol (MCP) server built with C# .NET and MailKit that provid
 
 ## Tools
 
-- **SendEmail** – Send an email via SMTP
-- **ReadEmails** – Read recent emails from an IMAP inbox
-- **SearchEmails** – Search emails by subject or sender
+| Tool | Description |
+|------|-------------|
+| **SendEmail** | Send an email with optional attachments, CC/BCC, HTML body |
+| **ReadEmails** | Read emails from any folder with pagination (JSON) |
+| **GetEmail** | Get full email details including body |
+| **SearchEmails** | Search by subject, sender, recipient, body, date, flags with pagination (JSON) |
+| **ReplyToEmail** | Reply with threading headers, preserves original CC |
+| **ForwardEmail** | Forward with original content inline |
+| **DownloadAttachments** | Download attachments to a local directory |
+| **CreateDraft** | Save a draft email with optional attachments |
+| **CreateFolder** | Create an IMAP mailbox folder |
+| **DeleteFolder** | Delete an IMAP mailbox folder |
+| **RenameFolder** | Rename an IMAP mailbox folder |
+| **MoveToFolder** | Move an email to a different folder |
+| **ListFolders** | List all mailbox folders |
+| **MessageCounts** | Get total and unread counts for a folder |
+| **AddFlags** | Add flags to an email (Seen, Flagged, Deleted, etc.) |
+| **RemoveFlags** | Remove flags from an email |
 
 ## Configuration
 
@@ -68,6 +83,32 @@ To override settings, mount your own config:
 docker run -i -v ./appsettings.json:/app/appsettings.json email-mcp
 ```
 
+## Docker Compose (with GreenMail for testing)
+
+```bash
+docker compose up -d
+```
+
+This starts:
+- **GreenMail** – SMTP (port 3025) and IMAP (port 3143) test server
+- **email-mcp** – MCP server in HTTP mode (port 5000)
+
+## Testing
+
+```bash
+# Run all tests
+dotnet test
+
+# Unit tests only
+dotnet test --filter "Category!=Integration"
+
+# Integration tests only (requires GreenMail running)
+docker compose up -d
+dotnet test --filter "Category=Integration"
+```
+
+Integration tests use `EmailMcp.Tests/appsettings.test.json` and automatically skip when the mail server is not reachable.
+
 ## MCP Client Configuration
 
 Add to your MCP client config (e.g. `mcp.json`):
@@ -77,8 +118,12 @@ Add to your MCP client config (e.g. `mcp.json`):
   "mcpServers": {
     "email": {
       "command": "dotnet",
-      "args": ["run", "--project", "/home/arayeshi/email-mcp/EmailMcp"]
+      "args": ["run", "--project", "/path/to/email-mcp/EmailMcp"]
     }
   }
 }
 ```
+
+## License
+
+MIT

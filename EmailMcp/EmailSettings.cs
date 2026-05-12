@@ -1,3 +1,5 @@
+using MailKit.Security;
+
 namespace EmailMcp;
 
 public class EmailSettings
@@ -9,4 +11,7 @@ public class EmailSettings
     public string Username { get; set; } = "";
     public string Password { get; set; } = "";
     public bool UseSsl { get; set; } = true;
+
+    public SecureSocketOptions SecureSocketOption =>
+        UseSsl ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.None;
 }
