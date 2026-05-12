@@ -99,6 +99,44 @@ public static class EmailTools
         return System.Text.Json.JsonSerializer.Serialize(result);
     }
 
+    [McpServerTool, Description("Get full email details including body by index, returns JSON")]
+    public static async Task<string> GetEmail(
+        IOptions<EmailSettings> options,
+        [Description("Index of the email (0-based from most recent)")] int emailIndex,
+        [Description("Folder to read from (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
+    {
+        var cfg = options.Value;
+        using var client = new ImapClient();
+        await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
+        await client.AuthenticateAsync(cfg.Username, cfg.Password);
+
+        var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
+            ? client.Inbox!
+            : await client.GetFolderAsync(folderName);
+        await folder.OpenAsync(FolderAccess.ReadOnly);
+
+        int index = folder.Count - 1 - emailIndex;
+        if (index < 0 || index >= folder.Count)
+            return "{\"error\": \"Invalid email index.\"}";
+
+        var msg = await folder.GetMessageAsync(index);
+        await client.DisconnectAsync(true);
+
+        var result = new
+        {
+            index = emailIndex,
+            from = msg.From.ToString(),
+            to = msg.To.ToString(),
+            cc = msg.Cc.ToString(),
+            subject = msg.Subject,
+            date = msg.Date.ToString("o"),
+            body = msg.TextBody ?? msg.HtmlBody ?? "",
+            isHtml = msg.TextBody == null && msg.HtmlBody != null,
+            attachments = msg.Attachments.Select(a => a.ContentDisposition?.FileName ?? a.ContentType.Name ?? "unnamed").ToList()
+        };
+        return System.Text.Json.JsonSerializer.Serialize(result);
+    }
+
     [McpServerTool, Description("Search emails in IMAP mailbox by subject, sender, recipient, date, or flags, returns JSON")]
     public static async Task<string> SearchEmails(
         IOptions<EmailSettings> options,
@@ -177,21 +215,24 @@ public static class EmailTools
         IOptions<EmailSettings> options,
         [Description("Sender email address")] string from,
         [Description("Index of the email to reply to (0-based from most recent)")] int emailIndex,
-        [Description("Reply body text")] string body)
+        [Description("Reply body text")] string body,
+        [Description("Folder to read from (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
     {
         var cfg = options.Value;
         using var imapClient = new ImapClient();
         await imapClient.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
         await imapClient.AuthenticateAsync(cfg.Username, cfg.Password);
 
-        var inbox = imapClient.Inbox!;
-        await inbox.OpenAsync(FolderAccess.ReadOnly);
+        var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
+            ? imapClient.Inbox!
+            : await imapClient.GetFolderAsync(folderName);
+        await folder.OpenAsync(FolderAccess.ReadOnly);
 
-        int index = inbox.Count - 1 - emailIndex;
-        if (index < 0 || index >= inbox.Count)
+        int index = folder.Count - 1 - emailIndex;
+        if (index < 0 || index >= folder.Count)
             return "Invalid email index.";
 
-        var original = await inbox.GetMessageAsync(index);
+        var original = await folder.GetMessageAsync(index);
         await imapClient.DisconnectAsync(true);
 
         var reply = new MimeMessage();
@@ -222,21 +263,24 @@ public static class EmailTools
         [Description("Sender email address")] string from,
         [Description("Recipient email address to forward to")] string to,
         [Description("Index of the email to forward (0-based from most recent)")] int emailIndex,
-        [Description("Optional message to prepend")] string? message = null)
+        [Description("Optional message to prepend")] string? message = null,
+        [Description("Folder to read from (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
     {
         var cfg = options.Value;
         using var imapClient = new ImapClient();
         await imapClient.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
         await imapClient.AuthenticateAsync(cfg.Username, cfg.Password);
 
-        var inbox = imapClient.Inbox!;
-        await inbox.OpenAsync(FolderAccess.ReadOnly);
+        var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
+            ? imapClient.Inbox!
+            : await imapClient.GetFolderAsync(folderName);
+        await folder.OpenAsync(FolderAccess.ReadOnly);
 
-        int index = inbox.Count - 1 - emailIndex;
-        if (index < 0 || index >= inbox.Count)
+        int index = folder.Count - 1 - emailIndex;
+        if (index < 0 || index >= folder.Count)
             return "Invalid email index.";
 
-        var original = await inbox.GetMessageAsync(index);
+        var original = await folder.GetMessageAsync(index);
         await imapClient.DisconnectAsync(true);
 
         var forward = new MimeMessage();
@@ -260,21 +304,24 @@ public static class EmailTools
     public static async Task<string> DownloadAttachments(
         IOptions<EmailSettings> options,
         [Description("Index of the email (0-based from most recent)")] int emailIndex,
-        [Description("Directory path to save attachments to")] string outputDir)
+        [Description("Directory path to save attachments to")] string outputDir,
+        [Description("Folder to read from (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
     {
         var cfg = options.Value;
         using var client = new ImapClient();
         await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
-        var inbox = client.Inbox!;
-        await inbox.OpenAsync(FolderAccess.ReadOnly);
+        var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
+            ? client.Inbox!
+            : await client.GetFolderAsync(folderName);
+        await folder.OpenAsync(FolderAccess.ReadOnly);
 
-        int index = inbox.Count - 1 - emailIndex;
-        if (index < 0 || index >= inbox.Count)
+        int index = folder.Count - 1 - emailIndex;
+        if (index < 0 || index >= folder.Count)
             return "Invalid email index.";
 
-        var msg = await inbox.GetMessageAsync(index);
+        var msg = await folder.GetMessageAsync(index);
         await client.DisconnectAsync(true);
 
         Directory.CreateDirectory(outputDir);
@@ -357,25 +404,28 @@ public static class EmailTools
     public static async Task<string> MoveToFolder(
         IOptions<EmailSettings> options,
         [Description("Index of the email to move (0-based from most recent)")] int emailIndex,
-        [Description("Destination folder name")] string destinationFolder)
+        [Description("Destination folder name")] string destinationFolder,
+        [Description("Source folder (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
     {
         var cfg = options.Value;
         using var client = new ImapClient();
         await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
-        var inbox = client.Inbox!;
-        await inbox.OpenAsync(FolderAccess.ReadWrite);
+        var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
+            ? client.Inbox!
+            : await client.GetFolderAsync(folderName);
+        await folder.OpenAsync(FolderAccess.ReadWrite);
 
-        int index = inbox.Count - 1 - emailIndex;
-        if (index < 0 || index >= inbox.Count)
+        int index = folder.Count - 1 - emailIndex;
+        if (index < 0 || index >= folder.Count)
             return "Invalid email index.";
 
         var destination = await client.GetFolderAsync(destinationFolder);
-        await inbox.MoveToAsync(index, destination);
+        await folder.MoveToAsync(index, destination);
         await client.DisconnectAsync(true);
 
-        return $"Email moved to '{destinationFolder}'.";
+        return $"Email moved from '{folderName}' to '{destinationFolder}'.";
     }
 
     [McpServerTool, Description("List all IMAP mailbox folders")]
@@ -421,22 +471,25 @@ public static class EmailTools
     public static async Task<string> AddFlags(
         IOptions<EmailSettings> options,
         [Description("Index of the email (0-based from most recent)")] int emailIndex,
-        [Description("Comma-separated flags to add (Seen, Answered, Flagged, Deleted, Draft)")] string flags)
+        [Description("Comma-separated flags to add (Seen, Answered, Flagged, Deleted, Draft)")] string flags,
+        [Description("Folder (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
     {
         var cfg = options.Value;
         using var client = new ImapClient();
         await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
-        var inbox = client.Inbox!;
-        await inbox.OpenAsync(FolderAccess.ReadWrite);
+        var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
+            ? client.Inbox!
+            : await client.GetFolderAsync(folderName);
+        await folder.OpenAsync(FolderAccess.ReadWrite);
 
-        int index = inbox.Count - 1 - emailIndex;
-        if (index < 0 || index >= inbox.Count)
+        int index = folder.Count - 1 - emailIndex;
+        if (index < 0 || index >= folder.Count)
             return "Invalid email index.";
 
         var messageFlags = ParseFlags(flags);
-        await inbox.AddFlagsAsync(index, messageFlags, true);
+        await folder.AddFlagsAsync(index, messageFlags, true);
         await client.DisconnectAsync(true);
 
         return $"Flags added: {flags}";
@@ -446,22 +499,25 @@ public static class EmailTools
     public static async Task<string> RemoveFlags(
         IOptions<EmailSettings> options,
         [Description("Index of the email (0-based from most recent)")] int emailIndex,
-        [Description("Comma-separated flags to remove (Seen, Answered, Flagged, Deleted, Draft)")] string flags)
+        [Description("Comma-separated flags to remove (Seen, Answered, Flagged, Deleted, Draft)")] string flags,
+        [Description("Folder (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
     {
         var cfg = options.Value;
         using var client = new ImapClient();
         await client.ConnectAsync(cfg.ImapHost, cfg.ImapPort, cfg.UseSsl);
         await client.AuthenticateAsync(cfg.Username, cfg.Password);
 
-        var inbox = client.Inbox!;
-        await inbox.OpenAsync(FolderAccess.ReadWrite);
+        var folder = folderName.Equals("INBOX", StringComparison.OrdinalIgnoreCase)
+            ? client.Inbox!
+            : await client.GetFolderAsync(folderName);
+        await folder.OpenAsync(FolderAccess.ReadWrite);
 
-        int index = inbox.Count - 1 - emailIndex;
-        if (index < 0 || index >= inbox.Count)
+        int index = folder.Count - 1 - emailIndex;
+        if (index < 0 || index >= folder.Count)
             return "Invalid email index.";
 
         var messageFlags = ParseFlags(flags);
-        await inbox.RemoveFlagsAsync(index, messageFlags, true);
+        await folder.RemoveFlagsAsync(index, messageFlags, true);
         await client.DisconnectAsync(true);
 
         return $"Flags removed: {flags}";
