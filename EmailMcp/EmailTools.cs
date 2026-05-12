@@ -17,7 +17,8 @@ public static class EmailTools
         [Description("Sender email address")] string from,
         [Description("Recipient email address")] string to,
         [Description("Email subject")] string subject,
-        [Description("Email body text")] string body,
+        [Description("Email body (plain text or HTML)")] string body,
+        [Description("Set to true if body is HTML")] bool isHtml = false,
         [Description("Comma-separated list of file paths to attach")] string? attachments = null)
     {
         var cfg = options.Value;
@@ -26,7 +27,7 @@ public static class EmailTools
         message.To.Add(MailboxAddress.Parse(to));
         message.Subject = subject;
 
-        var textPart = new TextPart("plain") { Text = body };
+        var textPart = new TextPart(isHtml ? "html" : "plain") { Text = body };
 
         if (string.IsNullOrEmpty(attachments))
         {
@@ -215,7 +216,8 @@ public static class EmailTools
         IOptions<EmailSettings> options,
         [Description("Sender email address")] string from,
         [Description("Index of the email to reply to (0-based from most recent)")] int emailIndex,
-        [Description("Reply body text")] string body,
+        [Description("Reply body (plain text or HTML)")] string body,
+        [Description("Set to true if body is HTML")] bool isHtml = false,
         [Description("Folder to read from (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX")
     {
         var cfg = options.Value;
@@ -246,7 +248,7 @@ public static class EmailTools
             reply.References.Add(id);
         if (original.MessageId is not null)
             reply.References.Add(original.MessageId);
-        reply.Body = new TextPart("plain") { Text = body };
+        reply.Body = new TextPart(isHtml ? "html" : "plain") { Text = body };
 
         using var smtpClient = new SmtpClient();
         await smtpClient.ConnectAsync(cfg.SmtpHost, cfg.SmtpPort, cfg.UseSsl);
@@ -547,7 +549,8 @@ public static class EmailTools
         [Description("Sender email address")] string from,
         [Description("Recipient email address")] string to,
         [Description("Email subject")] string subject,
-        [Description("Email body text")] string body,
+        [Description("Email body (plain text or HTML)")] string body,
+        [Description("Set to true if body is HTML")] bool isHtml = false,
         [Description("Comma-separated list of file paths to attach")] string? attachments = null)
     {
         var cfg = options.Value;
@@ -556,7 +559,7 @@ public static class EmailTools
         message.To.Add(MailboxAddress.Parse(to));
         message.Subject = subject;
 
-        var textPart = new TextPart("plain") { Text = body };
+        var textPart = new TextPart(isHtml ? "html" : "plain") { Text = body };
 
         if (string.IsNullOrEmpty(attachments))
         {
