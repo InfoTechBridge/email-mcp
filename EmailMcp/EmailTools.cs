@@ -146,12 +146,13 @@ public static class EmailTools
         return System.Text.Json.JsonSerializer.Serialize(result);
     }
 
-    [McpServerTool, Description("Search emails in IMAP mailbox by subject, sender, recipient, date, or flags, returns JSON")]
+    [McpServerTool, Description("Search emails in IMAP mailbox by subject, sender, recipient, body, date, or flags, returns JSON")]
     public static async Task<string> SearchEmails(
         IOptions<EmailSettings> options,
         [Description("Search term to look for in subject")] string? subject = null,
         [Description("Search term to look for in sender")] string? from = null,
         [Description("Search term to look for in recipient (useful for searching Sent folder)")] string? to = null,
+        [Description("Search for words or phrases in the email body")] string? body = null,
         [Description("Folder to search in (e.g. INBOX, Sent, Drafts)")] string folderName = "INBOX",
         [Description("Only emails after this date (yyyy-MM-dd)")] string? after = null,
         [Description("Only emails before this date (yyyy-MM-dd)")] string? before = null,
@@ -176,6 +177,8 @@ public static class EmailTools
             query = SearchQuery.And(query, SearchQuery.FromContains(from));
         if (!string.IsNullOrEmpty(to))
             query = SearchQuery.And(query, SearchQuery.ToContains(to));
+        if (!string.IsNullOrEmpty(body))
+            query = SearchQuery.And(query, SearchQuery.BodyContains(body));
         if (!string.IsNullOrEmpty(after) && DateTime.TryParse(after, out var afterDate))
             query = SearchQuery.And(query, SearchQuery.DeliveredAfter(afterDate));
         if (!string.IsNullOrEmpty(before) && DateTime.TryParse(before, out var beforeDate))
