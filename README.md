@@ -55,7 +55,7 @@ dotnet run
 dotnet run --project EmailMcp -- --http
 ```
 
-The MCP endpoint will be available at `http://localhost:5000/mcp`.
+The MCP endpoint will be available at `http://localhost:5000/`.
 
 ### Stdio mode (default)
 
