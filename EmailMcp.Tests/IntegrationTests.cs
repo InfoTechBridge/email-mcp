@@ -9,7 +9,7 @@ namespace EmailMcp.Tests;
 /// <summary>
 /// Integration tests that run against a real IMAP/SMTP server.
 /// Configure via appsettings.test.json or environment variables.
-/// Start MailPit with: docker compose up -d
+/// Start GreenMail with: docker compose up -d
 /// </summary>
 [Trait("Category", "Integration")]
 public class IntegrationTests

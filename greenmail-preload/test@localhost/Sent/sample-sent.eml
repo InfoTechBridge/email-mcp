@@ -1,0 +1,15 @@
+From: test@localhost
+To: receiver@localhost
+Subject: Sample sent email
+Date: Thu, 14 May 2026 12:00:00 +0000
+Message-ID: <sample-sent-001@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Hello,
+
+This is a sample email preloaded into the Sent folder.
+
+Regards,
+MyAiAssistant Test

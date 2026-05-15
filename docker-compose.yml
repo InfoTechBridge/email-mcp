@@ -5,8 +5,12 @@ services:
     ports:
       - "3025:3025"   # SMTP
       - "3143:3143"   # IMAP
+      - "8080:8080"   # API
     environment:
-      GREENMAIL_OPTS: "-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=test:password@localhost"
+      GREENMAIL_OPTS: "-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=test:password@localhost -Dgreenmail.preload.dir=/greenmail-preload"
+    volumes:
+      - ./greenmail-preload:/greenmail-preload
+    restart: unless-stopped
 
   email-mcp:
     build: .
@@ -20,8 +24,9 @@ services:
       Email__SmtpPort: 3025
       Email__ImapHost: greenmail
       Email__ImapPort: 3143
-      Email__Username: test@localhost
+      Email__Username: test
       Email__Password: password
       Email__UseSsl: "false"
+    restart: unless-stopped
     depends_on:
       - greenmail
