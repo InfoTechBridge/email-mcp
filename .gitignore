@@ -11,6 +11,7 @@ obj/
 .vscode/
 .idea/
 *.swp
+*.lscache
 
 ## Build results
 [Dd]ebug/
