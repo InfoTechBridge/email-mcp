@@ -83,6 +83,12 @@ To override settings, mount your own config:
 docker run -i -v ./appsettings.json:/app/appsettings.json email-mcp
 ```
 
+## Docker Hub
+
+```bash
+docker pull aarayeshi/email-mcp
+```
+
 ## Docker Compose (with GreenMail for testing)
 
 ```bash
