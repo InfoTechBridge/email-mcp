@@ -7,9 +7,9 @@ services:
       - "3143:3143"   # IMAP
       - "3080:8080"   # API
     environment:
-      GREENMAIL_OPTS: "-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=test:password@localhost -Dgreenmail.preload.dir=/data/greenmail-preload"
+      GREENMAIL_OPTS: "-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=test:password@localhost -Dgreenmail.preload.dir=/greenmail-preload"
     volumes:
-      - ./greenmail-preload:/greenmail-preload
+      - ./data/greenmail-preload:/greenmail-preload
     restart: unless-stopped
 
   email-mcp:
