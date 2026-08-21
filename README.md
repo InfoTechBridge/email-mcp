@@ -80,7 +80,7 @@ docker run -p 5000:8080 email-mcp -- --http
 To override settings, mount your own config:
 
 ```bash
-docker run -i -v ./appsettings.json:/app/appsettings.json email-mcp
+docker run -i -p 5000:8080 -v ./appsettings.json:/app/appsettings.json email-mcp
 ```
 
 ## Docker Hub

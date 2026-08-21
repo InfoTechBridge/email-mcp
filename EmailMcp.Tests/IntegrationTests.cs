@@ -80,7 +80,7 @@ public class IntegrationTests
         Assert.Contains("\"total\"", result);
         Assert.Contains("\"emails\"", result);
     }
-
+ 
     [SkippableFact]
     public async Task GetEmail_ReturnsBodyContent()
     {

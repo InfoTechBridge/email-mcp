@@ -84,23 +84,22 @@ public static class EmailTools
             : await client.GetFolderAsync(folderName);
         await folder.OpenAsync(FolderAccess.ReadOnly);
 
-        var emails = new List<object>();
         int end = folder.Count - 1 - skip;
         int start = Math.Max(0, end - count + 1);
 
-        for (int i = end; i >= start; i--)
-        {
-            var msg = await folder.GetMessageAsync(i);
-            emails.Add(new
+        var msgs = await folder.FetchAsync(start, end, MessageSummaryItems.Envelope | MessageSummaryItems.UniqueId | MessageSummaryItems.Flags | MessageSummaryItems.InternalDate);
+        var emails = msgs.Select(m => new
             {
-                index = folder.Count - 1 - i,
-                from = msg.From.ToString(),
-                to = msg.To.ToString(),
-                subject = msg.Subject,
-                date = msg.Date.ToString("o"),
-                hasAttachments = msg.Attachments.Any()
-            });
-        }
+                index = m.Index,
+                uniqueId = m.UniqueId.Id,
+                from = m.Envelope?.From.ToString(),
+                to = m.Envelope?.To.ToString(),
+                cc = m.Envelope?.Cc.ToString(),
+                subject = m.Envelope?.Subject,
+                date = m.Date.ToString("o"),
+                hasAttachments = m.Attachments.Any()
+            }
+        ).ToList();
 
         await client.DisconnectAsync(true);
 
@@ -200,21 +199,21 @@ public static class EmailTools
         }
 
         var uids = await inbox.SearchAsync(query);
-        var emails = new List<object>();
+        //var emails = new List<object>();
 
-        foreach (var uid in uids.Reverse().Skip(skip).Take(count))
-        {
-            var msg = await inbox.GetMessageAsync(uid);
-            emails.Add(new
+        var msgs = await inbox.FetchAsync(uids.Reverse().Skip(skip).Take(count).ToList(), MessageSummaryItems.Envelope | MessageSummaryItems.UniqueId | MessageSummaryItems.Flags | MessageSummaryItems.InternalDate);
+        var emails = msgs.Select(m => new
             {
-                index = uids.IndexOf(uid),
-                from = msg.From.ToString(),
-                to = msg.To.ToString(),
-                subject = msg.Subject,
-                date = msg.Date.ToString("o"),
-                hasAttachments = msg.Attachments.Any()
-            });
-        }
+                index = m.Index,
+                uniqueId = m.UniqueId.Id,
+                from = m.Envelope?.From.ToString(),
+                to = m.Envelope?.To.ToString(),
+                cc = m.Envelope?.Cc.ToString(),
+                subject = m.Envelope?.Subject,
+                date = m.Date.ToString("o"),
+                hasAttachments = m.Attachments.Any()
+            }
+        ).ToList();
 
         await client.DisconnectAsync(true);
 

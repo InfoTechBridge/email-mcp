@@ -1,17 +1,4 @@
 services:
-  greenmail:
-    image: greenmail/standalone:2.1.2
-    container_name: greenmail
-    ports:
-      - "3025:3025"   # SMTP
-      - "3143:3143"   # IMAP
-      - "3080:8080"   # API
-    environment:
-      GREENMAIL_OPTS: "-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=test:password@localhost -Dgreenmail.preload.dir=/greenmail-preload"
-    volumes:
-      - ./data/greenmail-preload:/greenmail-preload
-    restart: unless-stopped
-
   email-mcp:
     build: .
     image: email-mcp
@@ -30,3 +17,34 @@ services:
     restart: unless-stopped
     depends_on:
       - greenmail
+
+  greenmail:
+    image: greenmail/standalone:2.1.2
+    container_name: greenmail
+    ports:
+      - "3025:3025"   # SMTP
+      - "3143:3143"   # IMAP
+      - "3080:8080"   # API
+    environment:
+      GREENMAIL_OPTS: "-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.users=test:password@localhost -Dgreenmail.preload.dir=/greenmail-preload"
+    volumes:
+      - ./data/greenmail-preload:/greenmail-preload
+    restart: unless-stopped
+
+  # #smtp4dev not supports Draft folder and also not allow to create a folder
+  # smtp4dev:
+  #   image: rnwood/smtp4dev:latest
+  #   container_name: smtp4dev
+  #   ports:
+  #     - "4025:25"   # SMTP
+  #     - "4143:143"  # IMAP
+  #     - "4110:110"  # POP3
+  #     - "4080:80"   # Web UI
+  #   volumes:
+  #     # This is where smtp4dev stores the database..
+  #     - ./data/smtp4dev-data:/smtp4dev
+  #   environment:
+  #     #- ServerOptions__HostName=smtp4dev
+  #     - ServerOptions__Login=test
+  #     - ServerOptions__Password=password
+  #   restart: unless-stopped
